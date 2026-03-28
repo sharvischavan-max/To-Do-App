@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>To-Do App</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>My To-Do App</h1>
+
+    <input type="text" id="taskInput" placeholder="Enter a task">
+    <button id="addBtn">Add</button>
+
+    <ul id="taskList"></ul>
+</div>
+
+<script>
+    const button = document.getElementById("addBtn");
+    const input = document.getElementById("taskInput");
+    const list = document.getElementById("taskList");
+
+    // Load saved tasks
+    window.onload = function() {
+        const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+        tasks.forEach(task => addTask(task.text, task.completed));
+    };
+
+    // Add task
+    button.addEventListener("click", function() {
+        const task = input.value;
+        if (task === "") return;
+
+        addTask(task, false);
+        updateStorage();
+        input.value = "";
+    });
+
+    // Add using Enter key
+    input.addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            button.click();
+        }
+    });
+
+    function addTask(task, completed) {
+        const li = document.createElement("li");
+
+        const span = document.createElement("span");
+        span.textContent = task;
+
+        if (completed) {
+            span.classList.add("completed");
+        }
+
+        // Mark complete
+        span.addEventListener("click", function() {
+            span.classList.toggle("completed");
+            updateStorage();
+        });
+
+        const delBtn = document.createElement("button");
+        delBtn.textContent = "❌";
+
+        delBtn.addEventListener("click", function() {
+            li.remove();
+            updateStorage();
+        });
+
+        li.appendChild(span);
+        li.appendChild(delBtn);
+        list.appendChild(li);
+    }
+
+    function updateStorage() {
+        const allTasks = [];
+        document.querySelectorAll("li").forEach(li => {
+            const text = li.querySelector("span").textContent;
+            const completed = li.querySelector("span").classList.contains("completed");
+            allTasks.push({ text, completed });
+        });
+        localStorage.setItem("tasks", JSON.stringify(allTasks));
+    }
+</script>
+
+</body>
+</html>
